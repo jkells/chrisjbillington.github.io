@@ -33,11 +33,12 @@ OTHERS = 'others' in sys.argv
 CONCERN = 'concern' in sys.argv
 BIPARTITE = 'bipartite' in sys.argv
 SINGLE = 'single' in sys.argv
+VAX_SINGLE = 'vax-single' in sys.argv
 LGA_IX = None
 LGA = None
 OLD = 'old' in sys.argv
 
-if not (VAX or OTHERS or CONCERN or BIPARTITE or SINGLE) and sys.argv[1:]:
+if not (VAX or OTHERS or CONCERN or BIPARTITE or SINGLE or VAX_SINGLE) and sys.argv[1:]:
     if (VAX and OTHERS) or (VAX and CONCERN):
         pass # That's fine and allowed
     if len(sys.argv) == 2:
@@ -49,6 +50,10 @@ if not (VAX or OTHERS or CONCERN or BIPARTITE or SINGLE) and sys.argv[1:]:
 
 if OLD or BIPARTITE:
     VAX = True
+
+if VAX_SINGLE:
+    VAX = True
+    SINGLE = True
 
 # Data from covidlive by date announced to public
 def covidlive_data(start_date=np.datetime64('2021-06-10')):
@@ -1008,6 +1013,8 @@ if VAX:
         suffix = "_others_vax"
     elif CONCERN:
         suffix = "_concern_vax"
+    elif SINGLE:
+        suffix=f'_LGA_vax_{LGA}'
     else:
         suffix = '_vax'
 elif SINGLE:
@@ -1032,6 +1039,10 @@ if VAX or not (LGA or OTHERS or CONCERN):
         ymax=4000
     else:
         ymax=2000
+
+    if not SINGLE:
+        ymax=150
+
     ax2.axis(ymin=0, ymax=ymax)
     ax2.yaxis.set_major_locator(mticker.MultipleLocator(ymax / 8))
     ax2.set_ylabel("Daily confirmed cases (linear scale)")
