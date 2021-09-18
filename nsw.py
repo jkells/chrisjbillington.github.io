@@ -32,11 +32,13 @@ VAX = 'vax' in sys.argv
 OTHERS = 'others' in sys.argv
 CONCERN = 'concern' in sys.argv
 BIPARTITE = 'bipartite' in sys.argv
+SINGLE = 'single' in sys.argv
+VAX_SINGLE = 'vax-single' in sys.argv
 LGA_IX = None
 LGA = None
 OLD = 'old' in sys.argv
 
-if not (VAX or OTHERS or CONCERN or BIPARTITE) and sys.argv[1:]:
+if not (VAX or OTHERS or CONCERN or BIPARTITE or SINGLE or VAX_SINGLE) and sys.argv[1:]:
     if (VAX and OTHERS) or (VAX and CONCERN):
         pass # That's fine and allowed
     if len(sys.argv) == 2:
@@ -48,6 +50,10 @@ if not (VAX or OTHERS or CONCERN or BIPARTITE) and sys.argv[1:]:
 
 if OLD or BIPARTITE:
     VAX = True
+
+if VAX_SINGLE:
+    VAX = True
+    SINGLE = True
 
 # Data from covidlive by date announced to public
 def covidlive_data(start_date=np.datetime64('2021-06-10')):
@@ -353,7 +359,7 @@ LGAs_OF_CONCERN = [
     # "Lake Macquarie",
 ]
 
-if LGA_IX is not None or OTHERS or CONCERN:
+if LGA_IX is not None or OTHERS or CONCERN or SINGLE:
     dates, cases_by_lga = lga_data()
     # Sort LGAs in reverse order by last 14d cases
     sorted_lgas_of_concern = sorted(
@@ -364,6 +370,9 @@ if LGA_IX is not None or OTHERS or CONCERN:
     #     print(lga, cases_by_lga[lga][-14:].sum())
 if LGA_IX is not None:
     LGA = sorted_lgas_of_concern[LGA_IX]
+    new = cases_by_lga[LGA]
+elif SINGLE:
+    LGA = sys.argv[2]
     new = cases_by_lga[LGA]
 elif OTHERS:
     # Sum over all LGAs *not* of concern
@@ -859,6 +868,8 @@ if VAX and not BIPARTITE:
         region = "New South Wales (excluding LGAs of concern)"
     elif CONCERN:
         region = "New South Wales LGAs of concern"
+    elif SINGLE:
+        region = LGA
     else:
         region = "New South Wales"
     title_lines = [
@@ -1004,8 +1015,12 @@ if VAX:
         suffix = "_others_vax"
     elif CONCERN:
         suffix = "_concern_vax"
+    elif SINGLE:
+        suffix=f'_LGA_vax_{LGA}'
     else:
         suffix = '_vax'
+elif SINGLE:
+    suffix=f'_LGA_{LGA}'
 elif LGA:
     suffix=f'_LGA_{LGA_IX}'
 elif OTHERS:
@@ -1026,6 +1041,10 @@ if VAX or not (LGA or OTHERS or CONCERN):
         ymax=4000
     else:
         ymax=2000
+
+    if SINGLE:
+        ymax=150
+
     ax2.axis(ymin=0, ymax=ymax)
     ax2.yaxis.set_major_locator(mticker.MultipleLocator(ymax / 8))
     ax2.set_ylabel("Daily confirmed cases (linear scale)")
