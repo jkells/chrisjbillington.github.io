@@ -868,6 +868,8 @@ if VAX and not BIPARTITE:
         region = "New South Wales (excluding LGAs of concern)"
     elif CONCERN:
         region = "New South Wales LGAs of concern"
+    elif SINGLE:
+        region = LGA
     else:
         region = "New South Wales"
     title_lines = [
