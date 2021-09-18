@@ -1040,7 +1040,7 @@ if VAX or not (LGA or OTHERS or CONCERN):
     else:
         ymax=2000
 
-    if not SINGLE:
+    if SINGLE:
         ymax=150
 
     ax2.axis(ymin=0, ymax=ymax)
