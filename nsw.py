@@ -32,11 +32,12 @@ VAX = 'vax' in sys.argv
 OTHERS = 'others' in sys.argv
 CONCERN = 'concern' in sys.argv
 BIPARTITE = 'bipartite' in sys.argv
+SINGLE = 'single' in sys.argv
 LGA_IX = None
 LGA = None
 OLD = 'old' in sys.argv
 
-if not (VAX or OTHERS or CONCERN or BIPARTITE) and sys.argv[1:]:
+if not (VAX or OTHERS or CONCERN or BIPARTITE or SINGLE) and sys.argv[1:]:
     if (VAX and OTHERS) or (VAX and CONCERN):
         pass # That's fine and allowed
     if len(sys.argv) == 2:
@@ -353,7 +354,7 @@ LGAs_OF_CONCERN = [
     # "Lake Macquarie",
 ]
 
-if LGA_IX is not None or OTHERS or CONCERN:
+if LGA_IX is not None or OTHERS or CONCERN or SINGLE:
     dates, cases_by_lga = lga_data()
     # Sort LGAs in reverse order by last 14d cases
     sorted_lgas_of_concern = sorted(
@@ -364,6 +365,9 @@ if LGA_IX is not None or OTHERS or CONCERN:
     #     print(lga, cases_by_lga[lga][-14:].sum())
 if LGA_IX is not None:
     LGA = sorted_lgas_of_concern[LGA_IX]
+    new = cases_by_lga[LGA]
+elif SINGLE:
+    LGA = sys.argv[2]
     new = cases_by_lga[LGA]
 elif OTHERS:
     # Sum over all LGAs *not* of concern
@@ -1006,6 +1010,8 @@ if VAX:
         suffix = "_concern_vax"
     else:
         suffix = '_vax'
+elif SINGLE:
+    suffix=f'_LGA_{LGA}'
 elif LGA:
     suffix=f'_LGA_{LGA_IX}'
 elif OTHERS:
